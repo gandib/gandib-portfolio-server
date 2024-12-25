@@ -8,8 +8,6 @@ import config from '../../config';
 import { createToken, verifyToken } from './user.utils';
 import { sendEmail } from '../../utils/sendEmail';
 import bcrypt from 'bcrypt';
-import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
-import mongoose from 'mongoose';
 
 const createUser = async (file: any, payload: TUser) => {
   const isUserExists = await User.findOne({ email: payload.email });
@@ -17,22 +15,7 @@ const createUser = async (file: any, payload: TUser) => {
     throw new AppError(httpStatus.BAD_REQUEST, 'User already exists!');
   }
 
-  try {
-    if (file) {
-      // const imageName = `${payload?.email}${payload?.name}`;
-      const path = file?.path;
-
-      // send image to cloudinary
-      const { secure_url } = await sendImageToCloudinary(path);
-      payload.image = secure_url as string;
-    }
-  } catch (error) {
-    console.log(error);
-  }
-
-  if (payload.image === ' ') {
-    payload.image = config.profile_photo!;
-  }
+  // payload.role = 'ADMIN';
 
   const user = await User.create(payload);
   const result = await User.findById(user?._id).select('-password');
@@ -57,14 +40,6 @@ const loginUser = async (payload: TLoginUser) => {
     name: user?.name,
     email: user?.email,
     role: user?.role,
-    status: user?.status,
-    image: user?.image,
-    bio: user?.bio,
-    follower: user?.follower,
-    following: user?.following,
-    membership: user?.membership,
-    transactionId: user?.transactionId,
-    subscriptionValidity: user?.subscriptionValidity,
   };
 
   const token = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
@@ -77,37 +52,6 @@ const loginUser = async (payload: TLoginUser) => {
     token,
     userData,
   };
-};
-
-const getAllUser = async () => {
-  const result = await User.find({ role: { $ne: 'admin' } }).select(
-    '-password',
-  );
-
-  if (!result.length) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Users Not found!');
-  }
-  return result;
-};
-
-const getAllAdmin = async () => {
-  const result = await User.find({ role: { $ne: 'user' } }).select('-password');
-
-  if (!result.length) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Admin Not found!');
-  }
-  return result;
-};
-
-const getUser = async (email: string) => {
-  const result = await User.findOne({ email: email })
-    .select('-password')
-    .populate('follower following');
-
-  if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User Not found!');
-  }
-  return result;
 };
 
 const getUserById = async (id: string) => {
@@ -140,111 +84,7 @@ const updateUser = async (id: string, payload: TUser) => {
     {
       name: payload.name,
       password: payload.password,
-      image: payload.image,
-      bio: payload.bio,
-      membership: payload.membership,
     },
-    { new: true },
-  );
-
-  return result;
-};
-
-const updateFollowing = async (id: string, payload: TUser) => {
-  const user = await User.findById(id).select('-password');
-  const follower = await User.findById(payload.follower).select('-password');
-
-  if (!user || !follower) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User Not found!');
-  }
-
-  const session = await mongoose.startSession();
-
-  try {
-    session.startTransaction();
-
-    await User.findByIdAndUpdate(
-      payload.follower,
-      { $addToSet: { following: { $each: [id] } } },
-      { new: true, session },
-    );
-
-    const result = await User.findByIdAndUpdate(
-      id,
-      { $addToSet: { follower: { $each: [payload.follower] } } },
-      { new: true, session },
-    );
-
-    await session.commitTransaction();
-    await session.endSession();
-
-    return result;
-  } catch (error: any) {
-    session.abortTransaction();
-    session.endSession();
-    throw new Error(error);
-  }
-};
-
-const updateUnFollowing = async (id: string, payload: TUser) => {
-  const user = await User.findById(id).select('-password');
-  const follower = await User.findById(payload.following).select('-password');
-
-  if (!user || !follower) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User Not found!');
-  }
-
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
-
-    const result = await User.findByIdAndUpdate(
-      id,
-      { $pull: { following: payload.following } },
-      { new: true, session },
-    );
-
-    await User.findByIdAndUpdate(
-      payload.following,
-      { $pull: { follower: id } },
-      { new: true, session },
-    );
-
-    await session.commitTransaction();
-    await session.endSession();
-
-    return result;
-  } catch (error: any) {
-    session.abortTransaction();
-    session.endSession();
-    throw new Error(error);
-  }
-};
-
-const deleteUser = async (id: string) => {
-  const user = await User.findById(id).select('-password');
-  if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User Not found!');
-  }
-
-  const result = await User.findByIdAndDelete(id);
-
-  return result;
-};
-
-const updateUserStatus = async (
-  id: string,
-  payload: { status: string; id: string },
-) => {
-  const user = await User.findById(id).select('-password');
-
-  if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User Not found!');
-  }
-
-  const result = await User.findByIdAndUpdate(
-    payload.id,
-    { status: payload.status },
     { new: true },
   );
 
@@ -258,26 +98,12 @@ const forgetPassword = async (userId: string) => {
     throw new AppError(httpStatus.NOT_FOUND, 'User is not found!');
   }
 
-  // checking user is blocked
-  const userStatus = user?.status;
-  if (userStatus === 'blocked') {
-    throw new AppError(httpStatus.FORBIDDEN, 'User is already blocked!');
-  }
-
   // create token and send to the user
   const jwtPayload = {
     _id: user?._id,
     name: user?.name,
     email: user?.email,
     role: user?.role,
-    status: user?.status,
-    image: user?.image,
-    bio: user?.bio,
-    follower: user?.follower,
-    following: user?.following,
-    membership: user?.membership,
-    transactionId: user?.transactionId,
-    subscriptionValidity: user?.subscriptionValidity,
   };
 
   const resetToken = createToken(
@@ -299,12 +125,6 @@ const resetPassword = async (
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'User is not found!');
-  }
-
-  // checking user is blocked
-  const userStatus = user?.status;
-  if (userStatus === 'blocked') {
-    throw new AppError(httpStatus.FORBIDDEN, 'User is already blocked!');
   }
 
   // check if the token is valid and id is same of user
@@ -335,15 +155,8 @@ const resetPassword = async (
 export const userServices = {
   createUser,
   loginUser,
-  getUser,
   forgetPassword,
   resetPassword,
   updateUser,
-  updateUserStatus,
-  updateFollowing,
-  deleteUser,
-  updateUnFollowing,
-  getAllUser,
-  getAllAdmin,
   getUserById,
 };

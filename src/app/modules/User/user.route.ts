@@ -1,22 +1,18 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import validateRequest from '../../middlewares/validateRequest';
 import { userValidations } from './user.validation';
 import { userControllers } from './user.controller';
-import auth from '../../middlewares/auth';
-import { multerUpload } from '../../config/multer.config';
+// import auth from '../../middlewares/auth';
 
 const router = express.Router();
 
-router.post(
-  '/signup',
-  multerUpload.single('file'),
-  (req: Request, res: Response, next: NextFunction) => {
-    req.body = JSON.parse(req.body.data);
-    next();
-  },
-  validateRequest(userValidations.createUserValidationSchema),
-  userControllers.createUser,
-);
+router.get('/:id', userControllers.getUserById);
+
+// router.post(
+//   '/register',
+//   validateRequest(userValidations.createUserValidationSchema),
+//   userControllers.createUser,
+// );
 
 router.post(
   '/login',
@@ -36,36 +32,10 @@ router.patch(
   userControllers.updateUser,
 );
 
-router.patch(
-  '/update-following',
-  validateRequest(userValidations.updateFollowerValidationSchema),
-  userControllers.updateFollowing,
-);
-
-router.patch(
-  '/update-unfollowing',
-  validateRequest(userValidations.updateUnFollowingValidationSchema),
-  userControllers.updateUnFollowing,
-);
-
-router.patch(
-  '/update-user-status',
-  auth('admin'),
-  validateRequest(userValidations.updateUserStatusValidationSchema),
-  userControllers.updateUserStatus,
-);
-
-router.delete('/delete-user', auth('admin'), userControllers.deleteUser);
-
 router.post(
   '/reset-password',
   validateRequest(userValidations.resetPasswordValidationSchema),
   userControllers.resetPassword,
 );
-
-router.get('/all-user', userControllers.getAllUser);
-router.get('/all-admin', userControllers.getAllAdmin);
-router.get('/:email', userControllers.getUser);
-router.get('/user-by-id/:id', userControllers.getUserById);
 
 export const userRoutes = router;

@@ -26,40 +26,6 @@ const loginUser = catchAsync(async (req, res) => {
   });
 });
 
-const getAllUser = catchAsync(async (req, res) => {
-  const result = await userServices.getAllUser();
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Users retrieved successfully',
-    data: result,
-  });
-});
-
-const getAllAdmin = catchAsync(async (req, res) => {
-  const result = await userServices.getAllAdmin();
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Admins retrieved successfully',
-    data: result,
-  });
-});
-
-const getUser = catchAsync(async (req, res) => {
-  const { email } = req.params;
-  const result = await userServices.getUser(email as string);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User retrieved successfully',
-    data: result,
-  });
-});
-
 const getUserById = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await userServices.getUserById(id as string);
@@ -75,55 +41,6 @@ const getUserById = catchAsync(async (req, res) => {
 const updateUser = catchAsync(async (req, res) => {
   const { id } = req.query;
   const result = await userServices.updateUser(id as string, req.body);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User updated successfully',
-    data: result,
-  });
-});
-
-const updateFollowing = catchAsync(async (req, res) => {
-  const { id } = req.query;
-  const result = await userServices.updateFollowing(id as string, req.body);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User updated successfully',
-    data: result,
-  });
-});
-
-const updateUnFollowing = catchAsync(async (req, res) => {
-  const { id } = req.query;
-  const result = await userServices.updateUnFollowing(id as string, req.body);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User updated successfully',
-    data: result,
-  });
-});
-
-const deleteUser = catchAsync(async (req, res) => {
-  const { id } = req.query;
-
-  const result = await userServices.deleteUser(id as string);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User deleted successfully',
-    data: result,
-  });
-});
-
-const updateUserStatus = catchAsync(async (req, res) => {
-  const { id } = req.query;
-  const result = await userServices.updateUserStatus(id as string, req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -160,15 +77,8 @@ const resetPassword = catchAsync(async (req, res) => {
 export const userControllers = {
   createUser,
   loginUser,
-  getUser,
   forgetPassword,
   resetPassword,
   updateUser,
-  updateUserStatus,
-  updateFollowing,
-  deleteUser,
-  updateUnFollowing,
-  getAllUser,
-  getAllAdmin,
   getUserById,
 };

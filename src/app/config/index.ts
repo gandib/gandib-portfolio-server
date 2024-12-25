@@ -19,5 +19,5 @@ export default {
   verify_payment_url: process.env.PAYMENT_VERIFY_URL,
   reset_password_ui_link: process.env.RESET_PASSWORD_UI_LINK,
   profile_photo: process.env.PROFILE_PHOTO,
-  recipe_photo: process.env.RECIPE_PHOTO,
+  project_photo: process.env.PROJECT_PHOTO,
 };

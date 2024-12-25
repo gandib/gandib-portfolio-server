@@ -1,8 +1,6 @@
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 
-export type TUserRole = 'admin' | 'user';
-export type TUserStatus = 'blocked' | 'unblocked';
-export type TUserMembership = 'basic' | 'premium';
+export type TUserRole = 'ADMIN';
 
 export interface TUser {
   _id?: string;
@@ -10,14 +8,6 @@ export interface TUser {
   email: string;
   password: string;
   role: TUserRole;
-  image: string;
-  bio: string;
-  status: TUserStatus;
-  follower: Types.ObjectId;
-  following: Types.ObjectId;
-  membership: TUserMembership;
-  transactionId: string;
-  subscriptionValidity: string;
 }
 
 export interface TLoginUser {
