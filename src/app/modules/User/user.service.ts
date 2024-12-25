@@ -152,6 +152,40 @@ const resetPassword = async (
   );
 };
 
+const changePassword = async (
+  user: TUser,
+  payload: { oldPassword: string; newPassword: string },
+) => {
+  const userData = await User.isUserExistsByEmail(user?.email);
+
+  if (!userData) {
+    throw new AppError(httpStatus.NOT_FOUND, 'No User Found');
+  }
+
+  const isCorrectPassword: boolean = await bcrypt.compare(
+    payload.oldPassword,
+    userData.password,
+  );
+
+  if (!isCorrectPassword) {
+    throw new Error('Login credential is incorrect!');
+  }
+
+  const hashedPassword = await bcrypt.hash(payload.newPassword, 12);
+
+  await User.findByIdAndUpdate(
+    user?._id,
+    {
+      password: hashedPassword,
+    },
+    { new: true },
+  );
+
+  return {
+    message: 'Password changed successfully!',
+  };
+};
+
 export const userServices = {
   createUser,
   loginUser,
@@ -159,4 +193,5 @@ export const userServices = {
   resetPassword,
   updateUser,
   getUserById,
+  changePassword,
 };

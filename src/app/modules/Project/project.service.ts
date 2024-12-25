@@ -52,7 +52,7 @@ const createProject = async (
 
 const getAllProject = async (query: Record<string, unknown>) => {
   const projectQuery = new QueryBuilder(
-    Project.find({ status: { $ne: 'unpublished' } }).populate('user'),
+    Project.find({ isDeleted: { $ne: true } }).populate('user'),
     query,
   )
     .search(projectSearchableFields)

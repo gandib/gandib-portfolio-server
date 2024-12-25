@@ -2,6 +2,7 @@ import express from 'express';
 import validateRequest from '../../middlewares/validateRequest';
 import { userValidations } from './user.validation';
 import { userControllers } from './user.controller';
+import auth from '../../middlewares/auth';
 // import auth from '../../middlewares/auth';
 
 const router = express.Router();
@@ -37,5 +38,7 @@ router.post(
   validateRequest(userValidations.resetPasswordValidationSchema),
   userControllers.resetPassword,
 );
+
+router.post('/change-password', auth('ADMIN'), userControllers.changePassword);
 
 export const userRoutes = router;
