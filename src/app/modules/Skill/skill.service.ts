@@ -52,7 +52,6 @@ const getAllSkill = async (query: Record<string, unknown>) => {
     .search(skillSearchableFields)
     .filter()
     .sort()
-    .paginate()
     .fields();
 
   const result = await skillQuery.modelQuery;

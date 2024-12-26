@@ -37,7 +37,7 @@ const createProject = async (
     console.log(error);
   }
 
-  if (payload.image[0] === ' ') {
+  if (payload.image.length === 0) {
     payload.image = [config.project_photo!];
   }
 

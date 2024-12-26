@@ -33,8 +33,8 @@ const createBlog = async (files: TImageFiles, payload: TBlog, user: TUser) => {
     console.log(error);
   }
 
-  if (payload.image[0] === ' ') {
-    payload.image = [config.blog_photo!];
+  if (payload.image.length === 0) {
+    payload.image = [config.project_photo!];
   }
 
   if (user._id) {
