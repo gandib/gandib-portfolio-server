@@ -39,6 +39,8 @@ router.post(
   userControllers.resetPassword,
 );
 
+router.post('/contact-me', userControllers.contactMe);
+
 router.post('/change-password', auth('ADMIN'), userControllers.changePassword);
 
 export const userRoutes = router;

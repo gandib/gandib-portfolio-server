@@ -20,4 +20,6 @@ export default {
   reset_password_ui_link: process.env.RESET_PASSWORD_UI_LINK,
   blog_photo: process.env.BLOG_PHOTO,
   project_photo: process.env.PROJECT_PHOTO,
+  email: process.env.EMAIL,
+  app_pass: process.env.APP_PASS,
 };

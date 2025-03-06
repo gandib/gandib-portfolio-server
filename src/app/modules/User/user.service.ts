@@ -8,6 +8,7 @@ import config from '../../config';
 import { createToken, verifyToken } from './user.utils';
 import { sendEmail } from '../../utils/sendEmail';
 import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
 
 const createUser = async (file: any, payload: TUser) => {
   const isUserExists = await User.findOne({ email: payload.email });
@@ -186,6 +187,42 @@ const changePassword = async (
   };
 };
 
+const contactMe = async (payload: {
+  name: string;
+  email: string;
+  message: string;
+}) => {
+  if (!payload.name || !payload.email || !payload.message) {
+    return new AppError(httpStatus.BAD_REQUEST, 'All fields are required');
+  }
+
+  try {
+    // Create transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: config.email, // Your Gmail email
+        pass: config.app_pass, // App password (not your Gmail password)
+      },
+    });
+
+    // Email content
+    const mailOptions = {
+      from: payload.email,
+      to: config.email, // Your Gmail where you want to receive emails
+      subject: `New Contact Form Submission from ${payload.name}`,
+      text: `Name: ${payload.name}\nEmail: ${payload.email}\nMessage: ${payload.message}`,
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+    // res.status(200).json({ message: 'Email sent successfully' });
+  } catch (error) {
+    console.error('Email error:', error);
+    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to send email');
+  }
+};
+
 export const userServices = {
   createUser,
   loginUser,
@@ -194,4 +231,5 @@ export const userServices = {
   updateUser,
   getUserById,
   changePassword,
+  contactMe,
 };

@@ -76,6 +76,17 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 
+const contactMe = catchAsync(async (req, res) => {
+  const result = await userServices.contactMe(req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Message sent successfully!',
+    data: result,
+  });
+});
+
 const changePassword = catchAsync(async (req, res) => {
   const user = req.user;
   const result = await userServices.changePassword(
@@ -99,4 +110,5 @@ export const userControllers = {
   updateUser,
   getUserById,
   changePassword,
+  contactMe,
 };
