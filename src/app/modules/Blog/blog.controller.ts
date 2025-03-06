@@ -46,7 +46,11 @@ const getSingleBlog = catchAsync(async (req, res) => {
 
 const updateBlog = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await blogServices.updateBlog(id as string, req.body);
+  const result = await blogServices.updateBlog(
+    req.files as TImageFiles,
+    id as string,
+    req.body,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

@@ -76,7 +76,32 @@ const getSingleBlog = async (id: string) => {
   return result;
 };
 
-const updateBlog = async (id: string, payload: TBlog) => {
+const updateBlog = async (files: TImageFiles, id: string, payload: TBlog) => {
+  const { file } = files;
+  try {
+    if (file) {
+      const paths: string[] = [];
+      const imageUrl: string[] = [];
+      file.map((image: any) => {
+        paths.push(image?.path);
+      });
+
+      // send image to cloudinary
+      for (let index = 0; index < paths.length; index++) {
+        const path = paths[index];
+        const { secure_url } = await sendImageToCloudinary(path);
+        imageUrl.push(secure_url as string);
+      }
+      payload.image = imageUrl as string[];
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+  if (payload?.image && payload.image.length === 0) {
+    payload.image = [config.project_photo!];
+  }
+
   const blog = await Blog.findById(id);
 
   if (!blog) {

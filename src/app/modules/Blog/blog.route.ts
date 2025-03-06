@@ -25,6 +25,11 @@ router.post(
 
 router.patch(
   '/:id',
+  multerUpload.fields([{ name: 'file' }]),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
   auth('ADMIN'),
   validateRequest(blogValidations.updateBlogValidationSchema),
   blogControllers.updateBlog,
